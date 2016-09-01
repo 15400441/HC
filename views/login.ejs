@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0" />
+<title>Health Check</title>
+<link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+<link href="/assets/css/login.css" rel="stylesheet" />
+
+</head>
+<body>
+	<div class="box">
+		<div class="login-box">
+			<div class="login-title text-center">
+				<h1>
+					<small>2Go Health Check Login</small>
+				</h1>
+			</div>
+			<div class="login-content ">
+				<div class="form">
+					<form action="/api/login" method="post">
+						<div class="form-group">
+							<div class="col-xs-12">
+								<div class="input-group">
+									<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span>
+									</span> <input type="text" id="username" name="userName" class="form-control" placeholder="username" required>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-12  ">
+								<div class="input-group">
+									<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span>
+									</span> <input type="password" id="password" name="password" class="form-control" placeholder="password" required>
+								</div>
+							</div>
+						</div>
+						<div class="form-group form-actions">
+							<div class="col-xs-4 col-xs-offset-4 ">
+								<button type="submit"   class="btn btn-sm btn-info" >
+									<span class="glyphicon glyphicon-off"></span>Login
+								</button>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-6 link">
+								<p class="text-center remove-margin">
+									<small>Forget password?</small> <a href="javascript:void(0)"><small>find</small>
+									</a>
+								</p>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="/assets/js/jquery.js"></script>
+<script type="text/javascript">
+
+
+</script>
+
+</html>
