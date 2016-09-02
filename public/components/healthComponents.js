@@ -1,66 +1,10 @@
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
 import { render } from 'react-dom'
-import { Provider } from 'react-redux'
-import { List, Map } from 'immutable'
-import { createStore } from 'redux';
+import ReactDOM from 'react-dom';
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 //put all rendered checkItem into this map. Once an checkItem changed,find it from the map and set its state to reredenr it.
 //the structure of this map {key:[],key2:[]}
-
-//var checkItemComponentMap= JSON.parse('{}');
-var checkItemComponentMap= new Map();  //store all checkItem component
-var checkItems=[];  //store all checkItems
-var alertCheckItems=[];   //store alert checkItems
-var checkItemStructure={};  //sort checkItems via group  {server:{group1:[s1,s2],group2:[s3,s4]},  service:{group1:[],group2[]}}  Map{string:Map{string:array[]}}
-var totalAlerts=0;
-var notificationsContent={} // store notifications panel's data
-
-
-
-//run after checkItems has been initalized
-var initial=function()
-{
-    alertCheckItems=[];
-    var serviceAbnormalCount=0;
-    var serverAbnormalCount=0;
-    var serviceCount=0;
-    var serverCount=0;
-    checkItems.map(function(checkItem){
-       if("service"==checkItem.type)
-          serviceCount++;
-        if("server"==checkItem.type)
-          serverCount++    
-
-
-     //initial alertCheckItems and notificationContet
-      if('danger'==checkItem.status)
-      {
-        alertCheckItems.push(checkItem);
-        if("service"==checkItem.type)
-          serviceAbnormalCount++;
-        if("server"==checkItem.type)
-          serverAbnormalCount++
-        totalAlerts++;
-      }
-  
-
-    });
-     
-    notificationsContent["serviceAbnormalCount"]=serviceAbnormalCount;
-    notificationsContent["serviceCount"]=serviceCount;
-    notificationsContent["serverAbnormalCount"]=serverAbnormalCount;
-    notificationsContent["serverCount"]=serverCount;
-    alertPanelIns.setState({checkItems:alertCheckItems});
-    alertPanelIns.setState({totalAlerts:totalAlerts});
-    notificationPanelIns.setState({"data":notificationsContent});
-
-}
-
-
-
-
-
 
 
 
@@ -87,7 +31,7 @@ var AlertPanel = React.createClass({
 
         return (
           <CheckItem data={s} key={s.id}  ref={"ref"+s.id}  location="alertPanel"/>
-          );
+           );
 
       });
 
@@ -164,41 +108,16 @@ var HandlePanel = React.createClass({
 
 
 
-var CheckItem = React.createClass({
+class CheckItem extends Component{
 
-  getInitialState: function() {
-    var checkItem = this.props.data
-    var statusStyle='btn btn-success btn-sm dropdown-toggle';
-    var wholeStyle={marginTop:'5px',marginLeft:'5px'};
-    return {
-      checkItem: checkItem,
-      statusStyle:statusStyle,
-      wholeStyle: wholeStyle
-    };
-  },
-
-  componentDidMount: function()
+  constructor(props)
   {
-    // put the component in checkItemComponentMap and use id as key
-    var key=this.props.data.id;
-    
-    if(checkItemComponentMap.has(key))
-    {
-      
-       checkItemComponentMap.get(key).push(this)
-    }
-    else
-    {
-       var arr=[];
-       arr.push(this);
-       checkItemComponentMap.set(this.props.data.id,arr);
-    }
-    
-  },
+    super(props);
+    this.detailClick=this.detailClick.bind(this);
+  }
 
-
- 
-  detailClick: function()
+  
+  detailClick()
   {
 
    
@@ -226,7 +145,7 @@ var CheckItem = React.createClass({
             if("server"==data.type)
             {
             $('#serverDetailModal').modal('show');
-            serverDetailModalIns.setState({content:data});
+            //serverDetailModalIns.setState({content:data});
 
             }
            
@@ -237,31 +156,37 @@ var CheckItem = React.createClass({
           }.bind(this)
         }); 
 
-  },
+  }
 
 
-  render: function() {
-    if ('danger'==this.state.checkItem.status)
+  render() {
+ 
+    var checkItem = this.props.data
+    var statusStyle='btn btn-success btn-sm dropdown-toggle';
+    var wholeStyle={marginTop:'5px',marginLeft:'5px'};
+
+
+    if ('danger'==checkItem.status)
     {
-      var statusStyle="btn btn-danger btn-sm dropdown-toggle";
-      this.state.statusStyle=statusStyle
+       statusStyle="btn btn-danger btn-sm dropdown-toggle";
+      
     }
 
     if ('ok'==this.state.checkItem.status)
     {
-      var statusStyle="btn btn-success btn-sm dropdown-toggle";
-      this.state.statusStyle=statusStyle
+      statusStyle="btn btn-success btn-sm dropdown-toggle";
+      
     }
 
     // 
 
     return (
      
-      <div className="btn-group" style={this.state.wholeStyle}>
-        <button type="button" className={this.state.statusStyle} data-toggle="dropdown" style={{
+      <div className="btn-group" style={wholeStyle}>
+        <button type="button" className={statusStyle} data-toggle="dropdown" style={{
         padding: '3px 6px'
       }}>
-          {this.state.checkItem.name} <span className="addNotifyRed"> {this.state.checkItem.todayAlertTimes}   </span>
+          {checkItem.name} <span className="addNotifyRed"> {checkItem.todayAlertTimes}   </span>
         </button>
         <ul className="dropdown-menu pull-right" role="menu">
           <li><a href="#">Action</a></li>
@@ -276,36 +201,26 @@ var CheckItem = React.createClass({
 
       );
   }
-});
+};
 
 
 
 
-var CheckItemGroupPanel = React.createClass({
-  getInitialState: function() {
-    var typeObj = this.props.data;
-    var data=checkItemStructure[typeObj.type][typeObj.groupName]
-   
-    //alert("panel:"+checkItemStructure);
-    //console.log(checkItemStructure);
-    return {
-      checkItemGroup: typeObj.groupName,
-      checkItems:data
-    };
-    
-  },
+class CheckItemGroupPanel extends Component{
+  constructor(props)
+  {
+     super(props);
 
 
-  componentDidMount: function() {
-    
-          
-  },
+  }
 
-  
+ 
 
-  render: function() {
+  render() {
+      var typeObj = this.props.group;
+      var items=this.props.checkItemStructure[typeObj.type][typeObj.groupName]
 
-      var checkItems = this.state.checkItems.map(function(s) {
+      var checkItems = items.map(function(s) {
 
         return (
           <CheckItem data={s} key={s.id}  ref={"ref"+s.id} location="groupPanel"/>
@@ -319,7 +234,7 @@ var CheckItemGroupPanel = React.createClass({
       <div className="panel panel-default">
         <div className="panel-heading">
         
-          {this.state.checkItemGroup}
+          {typeObj.groupName}
           
           <div className="pull-right">
             <div className="btn-group">
@@ -346,121 +261,26 @@ var CheckItemGroupPanel = React.createClass({
 
     )
   }
-});
+}
 
 
 
 
 
 
-var CheckItemGroupPanelBox = React.createClass({
-  
-  getInitialState: function() {
-    return {"groups":[]};
-  },
-
-
-  initialCheckItems:function(url,params)
-    {
-      //alert("initialCheckItems");
-      $.ajax({
-              url: url,
-              dataType: 'json',
-              type:'get',
-              data:params,
-              cache: false,
-              success: function(data) {
-                //alert("data:"+data)
-                checkItems=data;
-                
-                this.initialCheckItemStructure();
-                initial();
-
-               
-              }.bind(this),
-              error: function(xhr, status, err) {
-                console.error(status);
-              }.bind(this)
-            }); 
-    },
-
-  initialCheckItemStructure:function()
-    {   
-        var type=''
-        var groupName=""
-
-        for(var i=0;i < checkItems.length;i++)
-         {
-          type=checkItems[i].type;
-          groupName=checkItems[i].groupName;
-
-          if(checkItemStructure.hasOwnProperty(type))
-          {
-
-                if(checkItemStructure[type].hasOwnProperty(groupName))
-              {
-
-                checkItemStructure[type][groupName].push(checkItems[i])
-              }
-              else
-              {
-                var array=[];
-                array.push(checkItems[i]);
-                checkItemStructure[type][groupName]=array;
-              }
-          }
-          else
-          {
-            var content={};
-            checkItemStructure[type]=content;
-            var array=[];
-            array.push(checkItems[i]);
-            checkItemStructure[type][groupName]=array;
-          }
-
-      }
-
-      var groups=[];
-      console.log(checkItemStructure);  
-      //alert("checkItemStructure:"+checkItemStructure);
-
-      for(var key in checkItemStructure)
-      {
-         
-         console.log(key);
-
-         var types=Object.keys(checkItemStructure[key]);
-         var arr=[]
-         types.map(function(t){
-            var typeObj={};
-            typeObj.type=key;
-            typeObj.groupName=t;
-            arr.push(typeObj);
-         })
-        
-         groups=groups.concat(arr);
-         
-      }
-     
-      console.log(groups);
-      this.setState({"groups":groups})
-    },
-
-
-  componentDidMount: function()
+class CheckItemGroupPanelBox extends Component{
+  constructor(props)
   {
-   
-    this.initialCheckItems('/api/checkItems','');
+    super(props);
+  }
   
-  },
-  
+  render() {
+    const {groups, checkItemStructure}= this.props;
 
-  render: function() {
-    
-    var checkItemGroups =  this.state.groups.map(function(group) {
+    var checkItemGroups =  groups.map(function(group) {
       //alert("render:"+group);
       return (
-        <CheckItemGroupPanel data={group} key={group.groupName} />
+        <CheckItemGroupPanel group={group} checkItemStructure={checkItemStructure}  />
 
         );
 
@@ -472,11 +292,7 @@ var CheckItemGroupPanelBox = React.createClass({
       </div>
     )
   }
-});
-
-
-
-
+};
 
 
 
@@ -486,8 +302,6 @@ var CheckItemGroupPanelBox = React.createClass({
 
 
 var ServiceDetailContent = React.createClass({
-
-
 
   render: function() {
     var signalStyle={backgroundColor:'#5cb85c',padding:'10px'};
@@ -800,8 +614,8 @@ var WholeSearch=React.createClass({
 
 
 
-
-
+export{WholeSearch, AlertPanel,HandlePanel,CheckItemGroupPanelBox,ServiceDetailModal,ServerDetailModal,NotificationPanel}
+/*
 render(
   <WholeSearch />,
   document.getElementById('wholeSearch')
@@ -881,7 +695,7 @@ socket.on('noticeAlert', function (data) {
 });
 
 
-*/
+
 
 
 
@@ -979,7 +793,7 @@ setInterval(function()
 
   
 
-
+*/
   
   
 

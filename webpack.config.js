@@ -5,7 +5,7 @@ module.exports = {
   devtool: 'eval',
   entry: [
     'webpack-hot-middleware/client',
-    './public/assets/js/healthComponents.js'
+    './public/index.js'
   ],
   output: {
     path: path.join(__dirname, 'dist'),
@@ -14,6 +14,7 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
+   
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.UglifyJsPlugin({compress: {warnings: false}}),
     new webpack.DefinePlugin({
@@ -23,6 +24,7 @@ module.exports = {
   eslint: {
     configFile: '.eslintrc'
   },
+  
   /**
    * If need eslint, add it in loaders.
    * {test: /\.js$/,loader: "eslint-loader",exclude: /node_modules/,}
