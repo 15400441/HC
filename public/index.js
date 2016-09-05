@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 import {reducer} from './reducers/reducer';
-import {WholeSearch, AlertPanel,HandlePanel,CheckItemGroupPanelBox,ServiceDetailModal,ServerDetailModal,NotificationPanel} from './components/healthComponents'
 
 
 
@@ -14,22 +13,30 @@ import {WholeSearch, AlertPanel,HandlePanel,CheckItemGroupPanelBox,ServiceDetail
 const store=createStore(reducer);
 
 //container
-export const connection=connect(
+console.log("connect")
+export const Abc = connect(
   function mapStateToProps(state) {
-    return{state :state};
-  },
-  function mapDispatchToProps(dispatch) {
-    return {
-    //addTodo: text => dispatch(addTodo(text)),
-    //toggleTodo: id => dispatch(toggleTodo(id))
-     };
-  }
-)(WholeSearch,AlertPanel,HandlePanel,CheckItemGroupPanelBox,ServerDetailModal,ServiceDetailModal,
-  NotificationPanel);
+    console.log("here");
+    console.log(state.get('groups'));
+    return{groups :state.get('groups'),
+           checkItemStructure:state.get('checkItemStructure'),
+           alertCheckItems:state.get("alertCheckItems"),
+           notificationsContent:state.get('notificationsContent'),
+           totalAlerts:state.get("totalAlerts")
+           };
+  })(App);
 
+//console.log(App);
+//console.log(Abc);
 
 ReactDOM.render(
     <Provider store={store}>
-            <App />
+           <Abc />
      </Provider>,
     document.getElementById('app'))
+
+
+
+
+
+

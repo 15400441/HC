@@ -15,3 +15,10 @@ export function toggleTodo(id) {
     payload: id
   }
 }
+
+export function test(){
+   return{
+    type:'CHANGE'
+
+   }
+}

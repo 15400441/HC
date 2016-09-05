@@ -1,7 +1,8 @@
 import React, { Component, PropTypes } from 'react'
 import { render } from 'react-dom'
-import ReactDOM from 'react-dom';
-
+import ReactDOM from 'react-dom'
+import { connect } from 'react-redux'
+import {App} from '../container/app'
 //------------------------------------------------------------------------------------------------------------------------------------------------
 //put all rendered checkItem into this map. Once an checkItem changed,find it from the map and set its state to reredenr it.
 //the structure of this map {key:[],key2:[]}
@@ -10,24 +11,11 @@ import ReactDOM from 'react-dom';
 
 
 var AlertPanel = React.createClass({
-  getInitialState: function() {
-    return {checkItems:[],
-            totalAlerts:'0'
-           };
-  },
-
-  componentDidMount: function()
-  {
-    
-      //get alert server
-      //get alert checkItem
-      //count number
-  },
+  
 
 
   render: function() {
-
-     var checkItems = this.state.checkItems.map(function(s) {
+     var checkItems = this.props.alertCheckItems.map(function(s) {
 
         return (
           <CheckItem data={s} key={s.id}  ref={"ref"+s.id}  location="alertPanel"/>
@@ -41,7 +29,7 @@ var AlertPanel = React.createClass({
       <div className="panel panel-red">
         <div className="panel-heading">
           <div className="row">
-            <div className="col-xs-12 text-left">{this.state.totalAlerts} New alerts {this.props.title} !</div>
+            <div className="col-xs-12 text-left">{this.props.totalAlerts} New alerts {this.props.title} !</div>
           </div>
         </div>
         <div className="panel-body">
@@ -172,7 +160,7 @@ class CheckItem extends Component{
       
     }
 
-    if ('ok'==this.state.checkItem.status)
+    if ('ok'==checkItem.status)
     {
       statusStyle="btn btn-success btn-sm dropdown-toggle";
       
@@ -219,7 +207,7 @@ class CheckItemGroupPanel extends Component{
   render() {
       var typeObj = this.props.group;
       var items=this.props.checkItemStructure[typeObj.type][typeObj.groupName]
-
+      //console.log(items);
       var checkItems = items.map(function(s) {
 
         return (
@@ -272,10 +260,13 @@ class CheckItemGroupPanelBox extends Component{
   constructor(props)
   {
     super(props);
+
   }
   
   render() {
-    const {groups, checkItemStructure}= this.props;
+    const groups= this.props.groups;
+    const checkItemStructure=this.props.checkItemStructure
+    //alert(this.props.groups)
 
     var checkItemGroups =  groups.map(function(group) {
       //alert("render:"+group);
@@ -528,20 +519,7 @@ var ServerDetailModal = React.createClass({
 
 var NotificationPanel=React.createClass({
 
-  getInitialState: function()
-  {
-    
-    return {
-           data:{}
-
-           };
-  },
-
-  componentDidMount:function()
-  {
-     // get counts, put results in state, update data in <a>
-  },
-
+  
   render: function(){
     return(
        <div className="panel panel-default">
@@ -550,8 +528,8 @@ var NotificationPanel=React.createClass({
         </div>
         <div className="panel-body">
           <div className="list-group">
-            <a href="#" className="list-group-item"> <i className="fa fa-warning fa-fw"></i> CheckItem: <font color="red">{this.state.data.serviceAbnormalCount}</font>/<font color="green">{this.state.data.serviceCount}</font> <span className="pull-right text-muted small"><em>4 minutes ago</em> </span> </a> 
-            <a href="#" className="list-group-item"> <i className="fa fa-warning fa-fw"></i> Server: <font color="red">{this.state.data.serverAbnormalCount}</font>/<font color="green">{this.state.data.serverCount}</font> <span className="pull-right text-muted small"><em>4 minutes ago</em> </span> </a> 
+            <a href="#" className="list-group-item"> <i className="fa fa-warning fa-fw"></i> CheckItem: <font color="red">{this.props.data.serviceAbnormalCount}</font>/<font color="green">{this.props.data.serviceCount}</font> <span className="pull-right text-muted small"><em>4 minutes ago</em> </span> </a> 
+            <a href="#" className="list-group-item"> <i className="fa fa-warning fa-fw"></i> Server: <font color="red">{this.props.data.serverAbnormalCount}</font>/<font color="green">{this.props.data.serverCount}</font> <span className="pull-right text-muted small"><em>4 minutes ago</em> </span> </a> 
            </div>
           <a href="#" className="btn btn-default btn-block">View All Alerts</a>
         </div>
@@ -615,60 +593,6 @@ var WholeSearch=React.createClass({
 
 
 export{WholeSearch, AlertPanel,HandlePanel,CheckItemGroupPanelBox,ServiceDetailModal,ServerDetailModal,NotificationPanel}
-/*
-render(
-  <WholeSearch />,
-  document.getElementById('wholeSearch')
-
-);
-
-var alertPanelIns=render(
-  <AlertPanel url="" title="total" />,
-  document.getElementById('alertPanel')
-
-);
-
-render(
-  <HandlePanel url="" title=""/>,
-  document.getElementById('handlePanel')
-
-);
-
-
-var myAlertPanelIns=render(
-  <AlertPanel url=""  title="of my charge"/>,
-  document.getElementById('myAlertPanel')
-
-);
-
-
-
-render(
-  <CheckItemGroupPanelBox />,
-  document.getElementById('checkItemGroupPanel')
-
-);
-
-
-
-var serviceDetailModalIns=render(
-  <ServiceDetailModal />,
-  document.getElementById('serviceDetail')
-
-);
-
-var serverDetailModalIns=render(
-  <ServerDetailModal  />,
-  document.getElementById('serverDetail')
-
-);
-
-
-var notificationPanelIns= render(
-  <NotificationPanel />,
-  document.getElementById('notificationPanel')
-
-);
 
 
 
@@ -695,105 +619,16 @@ socket.on('noticeAlert', function (data) {
 });
 
 
-
-
-
-
-
-//red=>green
-
-setInterval(function()
-  {
-    var checkItem= {id:'1',name:'service1',ip:'192.023.2',status:"ok",type:"service"};
-    //var checkItem= {id:'10',name:'service1',ip:'192.023.2',status:"ok",type:"server"};
-    
-
-    //update  checkItems
-     for(var i=0;i<checkItems.length;i++)
-        {
-          if(checkItem.id==checkItems[i].id)
-          {
-            checkItems[i]=checkItem;
-          }
-        }
-
-
-    //remove change node from checkItemComponentMap
-    checkItemComponentMap.forEach(function(value,key,obj)
-    {
-       if(checkItem.id==key)
-       {
-         for(var i=0; i<value.length;i++)
-         {
-           if("alertPanel"==value[i].props.location)
-           {
-             value.splice(i,1);
-           }
-         }
-       }
-    });
-
-
-    //change target state
-    var checkItemIns=checkItemComponentMap.get(checkItem.id);
-    for(var i=0;i<checkItemIns.length;i++)
-    {
-      //console.log(checkItemIns[i]);
-      checkItemIns[i].setState({checkItem:checkItem});
-    }
-
-   //console.log(checkItemComponentMap);
-   
-
-   // update related data
-   totalAlerts=0;
-   initial("fromCheckItems");
-   initial("fromServers");
-
-  },5000);  
-
-
-
- 
-//green => red
-
-setInterval(function()
-  {
-    var checkItem= {id:'1',name:'service1',ip:'192.023.2',status:"danger",type:'service'};
-    
-
-    //update  checkItems
-     for(var i=0;i<checkItems.length;i++)
-        {
-          if(checkItem.id==checkItems[i].id)
-          {
-            checkItems[i]=checkItem;
-          }
-        }
-
-    //console.log(checkItems);
-
-    //change target state
-    var checkItemIns=checkItemComponentMap.get(checkItem.id);
-    for(var i=0;i<checkItemIns.length;i++)
-    {
-      //console.log(checkItemIns[i]);
-      checkItemIns[i].setState({checkItem:checkItem});
-    }
-
-   //console.log(checkItemComponentMap);
-   
-
-   // update related data
-   totalAlerts=0;
-  
-   initial();
-
-  },8000);  
-
-  
-
 */
+
+
+
+
+
+
+  
+
+
   
   
 

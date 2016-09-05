@@ -1,11 +1,13 @@
 import { List, Map } from 'immutable';
 import React from 'react'
+import { test } from '../actions/action';
 
 var init = Map({groups:[],
                   alertItems:{},
                   handleItmes:{},
-                  count:{},
-                  checkItemStructure:{}
+                  totalAlerts:0,
+                  checkItemStructure:{},
+                  notificationsContent:{}
                   });
 
 
@@ -21,7 +23,9 @@ var notificationsContent={} // store notifications panel's data
 //run after checkItems has been initalized
 var initial=function()
 {
+    totalAlerts=0;
     alertCheckItems=[];
+
     var serviceAbnormalCount=0;
     var serverAbnormalCount=0;
     var serviceCount=0;
@@ -58,6 +62,11 @@ var initial=function()
     notificationPanelIns.setState({"data":notificationsContent});
     */
 
+    init=init.set("alertCheckItems",alertCheckItems);
+    init=init.set("notificationsContent",notificationsContent);
+    init=init.set("totalAlerts",totalAlerts);
+
+
 }
 
 
@@ -91,8 +100,10 @@ var initial=function()
 
   var initialCheckItemStructure=function()
     {   
+        checkItemStructure={};
         var type=''
         var groupName=""
+
 
         for(var i=0;i < checkItems.length;i++)
          {
@@ -152,12 +163,71 @@ var initial=function()
       console.log("set groups");
       console.log(init.get('groups'))
       init=init.set("checkItemStructure",checkItemStructure);
+
+      
      
     }
 
 
 
+//red=>green
+/*
+setInterval(function()
+  {
+    var checkItem= {id:'1',name:'service1',ip:'192.023.2',status:"ok",type:"service"};
+    //var checkItem= {id:'10',name:'service1',ip:'192.023.2',status:"ok",type:"server"};
+    
+
+    //update  checkItems
+     for(var i=0;i<checkItems.length;i++)
+        {
+          if(checkItem.id==checkItems[i].id)
+          {
+            alert("changed");
+            checkItems[i]=checkItem;
+          }
+        }
+
+     initialCheckItemStructure();
+     initial();
+     test();
+
+  },5000);  
+
+*/
+
+/*
  
+//green => red
+
+setInterval(function()
+  {
+    var checkItem= {id:'1',name:'service1',ip:'192.023.2',status:"danger",type:'service'};
+    
+
+    //update  checkItems
+     for(var i=0;i<checkItems.length;i++)
+        {
+          if(checkItem.id==checkItems[i].id)
+          {
+            checkItems[i]=checkItem;
+          }
+        }
+
+    //console.log(checkItems);
+
+   //console.log(checkItemComponentMap);
+   
+   // update related data
+   totalAlerts=0;
+   initialCheckItemStructure();
+   initial();
+
+  },8000);  
+
+
+
+ */
 
 
 
@@ -177,6 +247,15 @@ initialCheckItems('/api/checkItems','');
 		      return t;
 		    }
 		  });
+    case 'CHANGE':
+      {
+
+      state=init;
+      alert("reducer return");
+      return state;
+    
+      }
+
     default:
       {
       console.log("state");
@@ -186,7 +265,7 @@ initialCheckItems('/api/checkItems','');
       return state;
     }
 
-}
+ }
 }
 
 export{reducer}
